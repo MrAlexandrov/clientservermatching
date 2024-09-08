@@ -69,7 +69,7 @@ public:
 
         userver::formats::json::ValueBuilder response;
         
-        response["balance"] = result.AsSingleRow<TBalance>(userver::storages::postgres::kRowTag);
+        response = result.AsSingleRow<TBalance>(userver::storages::postgres::kRowTag);
         return userver::formats::json::ToPrettyString(response.ExtractValue());
     }
 private:

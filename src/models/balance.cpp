@@ -3,11 +3,11 @@
 namespace NMatching {
 
 userver::formats::json::Value
-Serialize(const TBalance& user,
+Serialize(const TBalance& balance,
           userver::formats::serialize::To<userver::formats::json::Value>) {
     userver::formats::json::ValueBuilder item;
-    item["usd"] = user.usd_balance;
-    item["rub"] = user.rub_balance;
+    item["usd"] = balance.usd_balance;
+    item["rub"] = balance.rub_balance;
     return item.ExtractValue();
 }
 

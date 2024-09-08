@@ -75,7 +75,7 @@ public:
 
         auto price = std::stod(price_string);
         auto amount = std::stod(amount_string);
-        ;
+        
         auto result = pg_cluster_->Execute(
             userver::storages::postgres::ClusterHostType::kMaster,
             "INSERT INTO exchange.orders(user_id, order_type, price, amount, created_ts) "

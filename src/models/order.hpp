@@ -11,6 +11,8 @@
 
 namespace NMatching {
 
+using Number = userver::decimal64::Decimal<4, userver::decimal64::HalfEvenRoundPolicy>;
+
 class IOrder {
 public:
 
@@ -20,10 +22,10 @@ struct OrderData {
     std::string id;
     std::string user_id;
     std::string type;
-    double price;
-    double amount;
+    Number price;
+    Number amount;
     std::string status;
-    std::chrono::time_point<std::chrono::system_clock> created_ts;
+    std::string created_ts;
 };
 
 userver::formats::json::Value

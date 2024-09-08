@@ -14,8 +14,8 @@ Serialize(const OrderData& data,
     item["id"] = data.id;
     item["user_id"] = data.user_id;
     item["order_type"] = data.type;
-    item["price"] = std::to_string(data.price);
-    item["amount"] = std::to_string(data.amount);
+    item["price"] = data.price;
+    item["amount"] = data.amount;
     item["status"] = data.status;
     item["created_ts"] = data.created_ts;
     return item.ExtractValue();

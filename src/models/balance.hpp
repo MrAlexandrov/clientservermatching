@@ -6,15 +6,17 @@
 #include <userver/decimal64/decimal64.hpp>
 
 namespace NMatching {
+    
+using Number = userver::decimal64::Decimal<4, userver::decimal64::HalfEvenRoundPolicy>;
 
 struct TBalance {
     std::string user_id;
-    userver::decimal64::Decimal<2> usd_balance;
-    userver::decimal64::Decimal<2> rub_balance;
+    Number usd_balance;
+    Number rub_balance;
 };
 
 userver::formats::json::Value
-Serialize(const TBalance& user,
+Serialize(const TBalance& balance,
           userver::formats::serialize::To<userver::formats::json::Value>);
 
 } // namespace NMatching
