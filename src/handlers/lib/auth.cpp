@@ -9,12 +9,12 @@ GetSessionInfo(userver::storages::postgres::ClusterPtr pg_cluster,
     return std::nullopt;
   }
 
-  auto id = request.GetHeader(USER_TICKET_HEADER_NAME);
+  auto token = request.GetHeader(USER_TICKET_HEADER_NAME);
   auto result =
       pg_cluster->Execute(userver::storages::postgres::ClusterHostType::kMaster,
                           "SELECT * FROM exchange.auth_sessions "
                           "WHERE id = $1 ",
-                          id);
+                          token);
 
   if (result.IsEmpty()) {
     return std::nullopt;

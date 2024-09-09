@@ -25,7 +25,7 @@ struct OrderData {
     Number price;
     Number amount;
     std::string status;
-    std::string created_ts;
+    userver::storages::postgres::TimePointWithoutTz created_ts;
 };
 
 userver::formats::json::Value

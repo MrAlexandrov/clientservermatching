@@ -21,6 +21,7 @@
 
 #include "../lib/auth.hpp"
 #include "../../models/order.hpp"
+#include "../../service/match_orders.hpp"
 
 namespace NMatching {
 
@@ -73,8 +74,8 @@ public:
             );
         }
 
-        auto price = std::stod(price_string);
-        auto amount = std::stod(amount_string);
+        // auto price = std::stod(price_string);
+        // auto amount = std::stod(amount_string);
         
         auto result = pg_cluster_->Execute(
             userver::storages::postgres::ClusterHostType::kMaster,
@@ -83,8 +84,8 @@ public:
             "RETURNING * ",
             user_id, 
             type_string, 
-            userver::decimal64::Decimal<2>(price_string), 
-            userver::decimal64::Decimal<2>(amount_string), 
+            Number(price_string), 
+            Number(amount_string), 
             userver::storages::postgres::NowWithoutTz()
         );
 
@@ -95,8 +96,15 @@ public:
                 userver::formats::json::MakeObject("error", 
                     "error, creating order"));
         }
+
+        auto matcher = Match(pg_cluster_);
+
+        auto added = result.AsSingleRow<OrderData>(userver::storages::postgres::kRowTag);
+
+        matcher.MatchOrders(added);
+
         userver::formats::json::ValueBuilder response;
-        response["item"] = result.AsSingleRow<OrderData>(userver::storages::postgres::kRowTag);
+        response = added;
         return userver::formats::json::ToPrettyString(response.ExtractValue());
     }
 private:

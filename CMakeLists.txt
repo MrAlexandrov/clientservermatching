@@ -33,6 +33,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/models/session.hpp
     src/models/balance.hpp
     src/models/balance.cpp
+    
     src/handlers/lib/auth.hpp
     src/handlers/lib/auth.cpp
     src/handlers/register/register.hpp
@@ -49,6 +50,9 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/handlers/get-orders/get-orders.cpp
     src/handlers/delete-order/delete-order.hpp
     src/handlers/delete-order/delete-order.cpp
+
+    src/service/match_orders.hpp
+    src/service/match_orders.cpp
 )
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql)
 
