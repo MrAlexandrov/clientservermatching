@@ -60,11 +60,8 @@ public:
 
         auto request_body =
             userver::formats::json::FromString(request.RequestBody());
-        auto price_string = request_body["price"].As<std::string>();
-        auto amount_string = request_body["amount"].As<std::string>();
-        auto type_string = request_body["type"].As<std::string>();
 
-        if (amount_string.empty() || price_string.empty() || type_string.empty()) {
+        if (!request_body.HasMember("price") || !request_body.HasMember("amount") || !request_body.HasMember("order_type")) {
             auto& response = request.GetHttpResponse();
             response.SetStatus(userver::server::http::HttpStatus::kBadRequest);
             return userver::formats::json::ToPrettyString(
@@ -74,8 +71,55 @@ public:
             );
         }
 
-        // auto price = std::stod(price_string);
-        // auto amount = std::stod(amount_string);
+        auto price_string = request_body["price"].As<std::string>();
+        auto amount_string = request_body["amount"].As<std::string>();
+        auto order_type_string = request_body["order_type"].As<std::string>();
+
+        if (amount_string.empty() || price_string.empty() || order_type_string.empty()) {
+            auto& response = request.GetHttpResponse();
+            response.SetStatus(userver::server::http::HttpStatus::kBadRequest);
+            return userver::formats::json::ToPrettyString(
+                userver::formats::json::MakeObject("error",
+                    "missing required parameters"
+                )
+            );
+        }
+
+        if (!(order_type_string == "buy" || order_type_string == "sell")) {
+            auto& response = request.GetHttpResponse();
+            response.SetStatus(userver::server::http::HttpStatus::kBadRequest);
+            return userver::formats::json::ToPrettyString(
+                userver::formats::json::MakeObject("error",
+                    "order type could be buy/sell"
+                )
+            );
+        }
+
+        Number zero{};
+        Number price;
+        Number amount;
+        try {
+            price = Number(price_string);
+            amount = Number(amount_string);
+        } catch (...) {
+            auto& response = request.GetHttpResponse();
+            response.SetStatus(userver::server::http::HttpStatus::kBadRequest);
+            return userver::formats::json::ToPrettyString(
+                userver::formats::json::MakeObject("error",
+                    "can't convert numbers"
+                )
+            );
+        }
+
+        if (price <= zero || amount <= zero) {
+            auto& response = request.GetHttpResponse();
+            response.SetStatus(userver::server::http::HttpStatus::kBadRequest);
+            return userver::formats::json::ToPrettyString(
+                userver::formats::json::MakeObject("error",
+                    "numbers should be more than zero"
+                )
+            );
+        }
         
         auto result = pg_cluster_->Execute(
             userver::storages::postgres::ClusterHostType::kMaster,
@@ -83,7 +127,7 @@ public:
             "VALUES ($1, $2, $3, $4, $5) "
             "RETURNING * ",
             user_id, 
-            type_string, 
+            order_type_string, 
             Number(price_string), 
             Number(amount_string), 
             userver::storages::postgres::NowWithoutTz()

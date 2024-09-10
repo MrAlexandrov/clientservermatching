@@ -61,7 +61,7 @@ def create_order_data(amount, price, type):
     order_data = {
         "amount": amount,
         "price": price,
-        "type": "buy"
+        "order_type": type
     }
     return order_data
 
@@ -101,14 +101,26 @@ async def login_user(service_client):
         return json_response["id"]
     return login_
 
+
 @pytest.fixture
 async def add_order(service_client):
-    async def add_(user_id, amount, price, type):
-        order_data = create_order_data(amount, price, type)
-        headers = create_headers_json(user_id)
+    async def add_(token, amount, price, order_type):
+
+
+        order_data = create_order_data(amount, price, order_type)
+        headers = create_headers_json(token)
         response = await service_client.post(ADD_ORDER_URL, json=order_data, headers=headers)
+        
+        # Проверка статуса ответа
         assert response.status == 200
-        json_response = response.json()
+        
+        # Получение и проверка содержимого ответа
+        json_response = response.json()  # нужно добавить await, так как это асинхронный запрос
         assert "id" in json_response
+        assert json_response["amount"] == amount
+        assert json_response["price"] == price
+        assert json_response["order_type"] == order_type
+        assert json_response["status"] in ["active", "partially_filled", "filled"]  # Ожидаемый статус заказа
+        
         return json_response["id"]
     return add_

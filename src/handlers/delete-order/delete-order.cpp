@@ -49,8 +49,8 @@ public:
             );
         }
 
-        auto session = session_opt.value();
-        auto user_id = session.user_id;
+        // auto session = session_opt.value();
+        auto user_id = session_opt.value().user_id;
 
         auto& order_id = request.GetPathArg("id");
         if (order_id.empty()) {
@@ -66,7 +66,7 @@ public:
         auto result = pg_cluster_->Execute(
             userver::storages::postgres::ClusterHostType::kMaster,
             "DELETE FROM exchange.orders "
-            "WHERE id = $2 AND user_id = $1 ",
+            "WHERE id = $1 AND user_id = $2 ",
             order_id, user_id
         );
 

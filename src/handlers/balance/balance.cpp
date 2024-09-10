@@ -56,16 +56,16 @@ public:
             user_id
         );
 
-        if (result.IsEmpty()) {
-            result = pg_cluster_->Execute(
-                userver::storages::postgres::ClusterHostType::kMaster,
-                "INSERT INTO exchange.balances (user_id) "
-                "VALUES ($1) "
-                "ON CONFLICT (user_id) DO NOTHING "
-                "RETURNING *",
-                user_id
-            );
-        }
+        // if (result.IsEmpty()) {
+        //     result = pg_cluster_->Execute(
+        //         userver::storages::postgres::ClusterHostType::kMaster,
+        //         "INSERT INTO exchange.balances (user_id) "
+        //         "VALUES ($1) "
+        //         "ON CONFLICT (user_id) DO NOTHING "
+        //         "RETURNING *",
+        //         user_id
+        //     );
+        // }
 
         userver::formats::json::ValueBuilder response;
         

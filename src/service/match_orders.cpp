@@ -18,12 +18,13 @@ void Match::MatchOrders(const OrderData &new_order) {
             "WHERE order_type = $1 AND price <= $2 AND "
             "(status = 'active' OR status = 'partially_filled') AND user_id != $3 "
             "ORDER BY price ASC, created_ts ASC ",
-            opposite_type, Number(new_order.price), new_order.id
+            opposite_type, Number(new_order.price), new_order.user_id
         ).AsSetOf<OrderData>(userver::storages::postgres::kRowTag); 
 
+        auto new_order_amount = Number(new_order.amount);
+        
         for (const auto& order : matching_orders) {
             auto zero = Number{};
-            auto new_order_amount = Number(new_order.amount);
             auto order_amount = Number(order.amount);
             if (new_order_amount > zero && order_amount > zero) {
                 auto deal_amount = std::min(new_order_amount, order_amount);
@@ -35,16 +36,32 @@ void Match::MatchOrders(const OrderData &new_order) {
                 UpdateBalances(new_order, order, deal_amount);
             }
         }
-    } else {
-        opposite_type = "sell";
+    } else if (new_order.type == "sell") {
+        opposite_type = "buy";
         auto matching_orders = pg_cluster_->Execute(
             userver::storages::postgres::ClusterHostType::kSlave,
             "SELECT * FROM exchange.orders "
             "WHERE order_type = $1 AND price >= $2 AND "
             "(status = 'active' OR status = 'partially_filled') AND user_id != $3 "
-            "ORDER BY price ASC, created_ts ASC ",
-            opposite_type, Number(new_order.price), new_order.id
-        );
+            "ORDER BY price DESC, created_ts ASC ",
+            opposite_type, Number(new_order.price), new_order.user_id
+        ).AsSetOf<OrderData>(userver::storages::postgres::kRowTag);
+
+        auto new_order_amount = Number(new_order.amount);
+
+        for (const auto& order : matching_orders) {
+            auto zero = Number{};
+            auto order_amount = Number(order.amount);
+            if (new_order_amount > zero && order_amount > zero) {
+                auto deal_amount = std::min(new_order_amount, order_amount);
+                ExecuteDeal(order, new_order, deal_amount);  // Меняем порядок параметров, т.к. это ордер на продажу
+
+                UpdateOrderAmount(new_order, deal_amount);
+                UpdateOrderAmount(order, deal_amount);
+
+                UpdateBalances(order, new_order, deal_amount);  // Обновляем балансы для покупателя и продавца
+            }
+        }
     }
 }
 

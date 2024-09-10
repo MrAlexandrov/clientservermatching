@@ -3,6 +3,7 @@
 #include "userver/components/component_config.hpp"
 #include "userver/components/component_fwd.hpp"
 #include "userver/formats/json/value_builder.hpp"
+#include "userver/logging/log.hpp"
 #include "userver/server/handlers/http_handler_base.hpp"
 #include "userver/server/http/http_request.hpp"
 #include "userver/server/request/request_context.hpp"

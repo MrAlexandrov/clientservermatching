@@ -70,7 +70,8 @@ public:
         "SELECT id FROM ins "
         "UNION ALL "
         "SELECT id FROM exchange.users WHERE username = $1 ",
-        username, hashed_password);
+        username, hashed_password
+    );
 
     if (result.IsEmpty()) {
       auto &response = request.GetHttpResponse();
@@ -81,8 +82,19 @@ public:
       );
     }
 
+    auto user_id = result.AsSingleRow<std::string>();
+
+    auto add_user_to_balances = pg_cluster_->Execute(
+        userver::storages::postgres::ClusterHostType::kMaster,
+        "INSERT INTO exchange.balances (user_id) "
+        "VALUES ($1) "
+        "ON CONFLICT (user_id) DO NOTHING "
+        "RETURNING *",
+        user_id
+    );
+
     userver::formats::json::ValueBuilder response;
-    response["id"] = result.AsSingleRow<std::string>();
+    response["id"] = user_id;
 
     return userver::formats::json::ToPrettyString(response.ExtractValue());
   }
