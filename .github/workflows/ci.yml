@@ -1,12 +1,7 @@
 name: CI
 
-'on':
-    schedule:
-      - cron: '30 5 * * 1'  # Every Monday at 5:30
-    pull_request:
-    push:
-        branches:
-          - develop
+on:
+  push:
 
 env:
     UBSAN_OPTIONS: print_stacktrace=1
@@ -17,16 +12,16 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                  - os: ubuntu-20.04
+                  - os: ubuntu-22.04
                     make: test-debug
-                    info: g++-9 + test-debug
+                    info: Clang++-17 + test-debug
 
-                  - os: ubuntu-20.04
+                  - os: ubuntu-22.04
                     make: test-release
-                    info: g++-9 + test-release
+                    info: Clang++-17 + test-release
 
         name: '${{matrix.os}}: ${{matrix.info}}'
-        runs-on: ${{matrix.os}}
+        runs-on: self-hosted
 
         steps:
           - uses: actions/checkout@v4

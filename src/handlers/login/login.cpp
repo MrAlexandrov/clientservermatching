@@ -4,16 +4,15 @@
 #include <userver/components/component_list.hpp>
 #include <userver/components/component_context.hpp>
 #include <userver/server/handlers/http_handler_base.hpp>
-// #include "userver/storages/postgres/cluster.hpp"
 #include <userver/storages/postgres/component.hpp>
 #include <userver/storages/postgres/postgres_fwd.hpp>
-#include "userver/formats/json/inline.hpp"
-#include "userver/formats/json/value_builder.hpp"
-#include "userver/http/status_code.hpp"
-#include "userver/server/http/http_request.hpp"
-#include "userver/server/request/request_context.hpp"
-#include "userver/storages/postgres/cluster_types.hpp"
-#include "userver/storages/postgres/io/row_types.hpp"
+#include <userver/formats/json/inline.hpp>
+#include <userver/formats/json/value_builder.hpp>
+#include <userver/http/status_code.hpp>
+#include <userver/server/http/http_request.hpp>
+#include <userver/server/request/request_context.hpp>
+#include <userver/storages/postgres/cluster_types.hpp>
+#include <userver/storages/postgres/io/row_types.hpp>
 #include <userver/storages/postgres/cluster.hpp>
 #include <userver/crypto/hash.hpp>
 
@@ -73,9 +72,9 @@ public:
             );
         }
         
-        auto user = TUser(userResult.AsSingleRow<UserData>(userver::storages::postgres::kRowTag));
+        auto user = TUser(userResult.AsSingleRow<TUser>(userver::storages::postgres::kRowTag));
         
-        if (hashed_password != user.GetHashedPassword()) {
+        if (hashed_password != user.hashed_password) {
             auto& response = request.GetHttpResponse();
             response.SetStatusNotFound();
             return userver::formats::json::ToPrettyString(
@@ -90,7 +89,7 @@ public:
             "ON CONFLICT (user_id) DO UPDATE "
             "SET id = uuid_generate_v4() "
             "RETURNING id ",
-            user.GetId()
+            user.id
         );
 
         if (result.IsEmpty()) {
@@ -106,7 +105,6 @@ public:
         response["id"] = result.AsSingleRow<std::string>();
 
         return userver::formats::json::ToPrettyString(response.ExtractValue());
-        // return "something";
     }
 private:
     userver::storages::postgres::ClusterPtr pg_cluster_;

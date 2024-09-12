@@ -1,15 +1,14 @@
 #include "balance.hpp"
 #include <string_view>
-#include "userver/components/component_config.hpp"
-#include "userver/components/component_fwd.hpp"
-#include "userver/formats/json/value_builder.hpp"
-#include "userver/server/handlers/http_handler_base.hpp"
-#include "userver/server/http/http_request.hpp"
-#include "userver/server/request/request_context.hpp"
-#include "userver/storages/postgres/cluster_types.hpp"
-#include "userver/storages/postgres/component.hpp"
-#include "userver/storages/postgres/io/row_types.hpp"
-#include "userver/storages/postgres/postgres_fwd.hpp"
+#include <userver/components/component_config.hpp>
+#include <userver/components/component_fwd.hpp>
+#include <userver/formats/json/value_builder.hpp>
+#include <userver/server/handlers/http_handler_base.hpp>
+#include <userver/server/http/http_request.hpp>
+#include <userver/server/request/request_context.hpp>
+#include <userver/storages/postgres/cluster.hpp>
+#include <userver/storages/postgres/component.hpp>
+#include <userver/storages/postgres/io/row_types.hpp>
 #include <userver/components/component.hpp>
 
 #include "../lib/auth.hpp"
@@ -55,17 +54,6 @@ public:
             "WHERE user_id = $1 ",
             user_id
         );
-
-        // if (result.IsEmpty()) {
-        //     result = pg_cluster_->Execute(
-        //         userver::storages::postgres::ClusterHostType::kMaster,
-        //         "INSERT INTO exchange.balances (user_id) "
-        //         "VALUES ($1) "
-        //         "ON CONFLICT (user_id) DO NOTHING "
-        //         "RETURNING *",
-        //         user_id
-        //     );
-        // }
 
         userver::formats::json::ValueBuilder response;
         

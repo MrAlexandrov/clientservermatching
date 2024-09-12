@@ -1,17 +1,17 @@
 #include "delete-order.hpp"
 
-#include "userver/components/component_config.hpp"
-#include "userver/components/component_fwd.hpp"
-#include "userver/formats/json/inline.hpp"
-#include "userver/formats/json/value_builder.hpp"
-#include "userver/http/status_code.hpp"
-#include "userver/server/handlers/http_handler_base.hpp"
-#include "userver/server/http/http_request.hpp"
-#include "userver/server/request/request_context.hpp"
-#include "userver/storages/postgres/cluster_types.hpp"
-#include "userver/storages/postgres/component.hpp"
-#include "userver/storages/postgres/io/row_types.hpp"
-#include "userver/storages/postgres/postgres_fwd.hpp"
+#include <userver/components/component_config.hpp>
+#include <userver/components/component_fwd.hpp>
+#include <userver/formats/json/inline.hpp>
+#include <userver/formats/json/value_builder.hpp>
+#include <userver/http/status_code.hpp>
+#include <userver/server/handlers/http_handler_base.hpp>
+#include <userver/server/http/http_request.hpp>
+#include <userver/server/request/request_context.hpp>
+#include <userver/storages/postgres/cluster_types.hpp>
+#include <userver/storages/postgres/component.hpp>
+#include <userver/storages/postgres/io/row_types.hpp>
+#include <userver/storages/postgres/postgres_fwd.hpp>
 #include <userver/components/component.hpp>
 
 
@@ -65,8 +65,8 @@ public:
 
         auto result = pg_cluster_->Execute(
             userver::storages::postgres::ClusterHostType::kMaster,
-            "DELETE FROM exchange.orders "
-            "WHERE id = $1 AND user_id = $2 ",
+            "UPDATE exchange.orders SET status = 'cancelled' "
+            "WHERE id = $1 AND user_id = $2 AND (status = 'active' OR status = 'partially_filled') ",
             order_id, user_id
         );
 

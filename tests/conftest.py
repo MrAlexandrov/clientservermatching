@@ -105,22 +105,90 @@ async def login_user(service_client):
 @pytest.fixture
 async def add_order(service_client):
     async def add_(token, amount, price, order_type):
-
-
         order_data = create_order_data(amount, price, order_type)
         headers = create_headers_json(token)
         response = await service_client.post(ADD_ORDER_URL, json=order_data, headers=headers)
         
-        # Проверка статуса ответа
         assert response.status == 200
         
-        # Получение и проверка содержимого ответа
-        json_response = response.json()  # нужно добавить await, так как это асинхронный запрос
+        json_response = response.json()
         assert "id" in json_response
-        assert json_response["amount"] == amount
+        assert json_response["amount"] <= amount
         assert json_response["price"] == price
         assert json_response["order_type"] == order_type
-        assert json_response["status"] in ["active", "partially_filled", "filled"]  # Ожидаемый статус заказа
+        assert json_response["status"] in ["active", "partially_filled", "filled"]
         
         return json_response["id"]
     return add_
+
+
+@pytest.fixture
+async def get_orders(service_client):
+    async def get_(token):
+        headers = create_headers_json(token)
+        response = await service_client.get(GET_ORDERS_URL, headers=headers)
+
+        assert response.status == 200
+
+        json_response = response.json()
+        assert "items" in json_response
+        
+        return json_response["items"]
+    return get_
+
+
+@pytest.fixture
+async def get_order(service_client):
+    async def get_(token, order_id):
+        headers = create_headers_json(token)
+        url = GET_ORDER_URL.format(id=order_id)
+        response = await service_client.get(url, headers=headers)
+
+        assert response.status == 200
+        
+        json_response = response.json()
+        assert "id" in json_response
+        assert json_response["id"] == order_id
+        
+        return json_response
+    return get_
+
+
+@pytest.fixture
+async def cancel_order(service_client):
+    async def cancel_(token, order_id):
+        headers = create_headers_json(token)
+        url = DELETE_ORDER_URL.format(id=order_id)
+        response = await service_client.delete(url, headers=headers)
+        
+        assert response.status == 200
+        
+        json_response = response.json()
+        assert "id" in json_response
+        assert json_response["id"] == order_id
+        
+        return json_response
+    return cancel_
+
+
+@pytest.fixture
+async def get_balance(service_client):
+    async def get_balance_(token):
+        headers = create_headers_json(token)
+        response = await service_client.get(GET_BALANCE_URL, headers=headers)
+        
+        # Проверяем, что запрос прошёл успешно
+        assert response.status == 200
+        
+        # Получаем и возвращаем JSON-ответ
+        json_response = response.json()
+        
+        # Проверяем наличие полей в ответе
+        assert "usd" in json_response
+        assert "rub" in json_response
+        
+        return {
+            "usd": int(json_response["usd"]),  # Преобразуем значение в int для удобства
+            "rub": int(json_response["rub"])
+        }
+    return get_balance_

@@ -3,12 +3,8 @@
 
 namespace NMatching {
 
-TOrder::TOrder(const OrderData& other) : data_(other) {}
-
-TOrder::TOrder(OrderData&& other) : data_(std::move(other)) {}
-
 userver::formats::json::Value
-Serialize(const OrderData& data,
+Serialize(const TOrder& data,
           userver::formats::serialize::To<userver::formats::json::Value>) {
     userver::formats::json::ValueBuilder item;
     item["id"] = data.id;

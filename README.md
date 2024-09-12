@@ -1,47 +1,71 @@
-# matching
+# Проект
+Сервис, реализующий функционал биржи, с возможностью добавления заявок на покупку или продажу USD.
 
-Template of a C++ service that uses [userver framework](https://github.com/userver-framework/userver) with PostgreSQL.
+# Сборка
+Проект лучше всего собирать в docker-контейнере, для этого есть соответствующие команды. 
+Сборка в docker-контейнере происходит следующим образом:
+- Запуск CMake, соответствующего команде
+- Поднятие docker-контейнера с образом, содержащим userver
+- Поднятие образа с PostgreSQL, инициализация схемы
+- 
+
+`docker` означает, что сборка будет производиться в docker-контейнере.
+
+`build` - сборка
+
+`test` - сборка и тестирование
+
+`debug` - сборка с санитайзерами и ассертами.
+
+`release` - сборка с LTO.
+
+`service-start` - запуск проекта.
+
+Команды для сборки и/или запуска:
+```shell
+make docker-build-debug
+make docker-build-release
+make docker-test-debug
+make docker-test-release
+make docker-service-start-debug
+make docker-service-start-release
+```
+
+Аналогичные команды без приставки `docker` реализуют то же самое локально. (Для такой сборки нужно правильно настроить рабочую среду, у меня в third_party склонирована последняя версия фреймворка userver, также я использую Clang++-17 для сборки)
+
+# Реализованный функционал
+## Сервер
+- Поддерживает подключение нескольких клиентов
+- Принимает заявки на покупку или продажу долларов за рубли от разных клиентов
+- Даёт возможность просмотра баланса клиента
 
 
-## Download and Build
+## Клиент
+- Имеет возможность отправлять запросы серверу
 
-To create your own userver-based service follow the following steps:
+## Дополнительный функционал
+- Клиент имеет возможность просматривать свои заявки
+- Клиент меет возможность отменять заявки
+- Клиент должен зарегистрироваться и авторизоваться для исползования сервиса
+- Сервер хранит все заявки и совершённые сделки в БД, PostgreSQL
+- Наличие OpenAPI
 
-1. Press the green "Use this template button" at the top of this github page
-2. Clone the service `git clone your-service-repo && cd your-service-repo`
-3. Give a propper name to your service and replace all the occurences of "matching" string with that name
-   (could be done via `find . -not -path "./third_party/*" -not -path ".git/*" -not -path './build_*' -type f | xargs sed -i 's/matching/YOUR_SERVICE_NAME/g'`).
-4. Feel free to tweak, adjust or fully rewrite the source code of your service.
-
-
-## Makefile
-
-Makefile contains typicaly useful targets for development:
-
-* `make build-debug` - debug build of the service with all the assertions and sanitizers enabled
-* `make build-release` - release build of the service with LTO
-* `make test-debug` - does a `make build-debug` and runs all the tests on the result
-* `make test-release` - does a `make build-release` and runs all the tests on the result
-* `make service-start-debug` - builds the service in debug mode and starts it
-* `make service-start-release` - builds the service in release mode and starts it
-* `make` or `make all` - builds and runs all the tests in release and debug modes
-* `make format` - autoformat all the C++ and Python sources
-* `make clean-` - cleans the object files
-* `make dist-clean` - clean all, including the CMake cached configurations
-* `make install` - does a `make build-release` and runs install in directory set in environment `PREFIX`
-* `make install-debug` - does a `make build-debug` and runs install in directory set in environment `PREFIX`
-* `make docker-COMMAND` - run `make COMMAND` in docker environment
-* `make docker-build-debug` - debug build of the service with all the assertions and sanitizers enabled in docker environment
-* `make docker-test-debug` - does a `make build-debug` and runs all the tests on the result in docker environment
-* `make docker-start-service-release` - does a `make install-release` and runs service in docker environment
-* `make docker-start-service-debug` - does a `make install-debug` and runs service in docker environment
-* `make docker-clean-data` - stop docker containers and clean database data
-
-Edit `Makefile.local` to change the default configuration and build options.
+# Интеграционные тесты (pytest)
+- Регистрация
+- Авторизация
+- Добавление заявки
+- Получение баланса
+- Получение как одной так и всех заявок
+- Исполнение заявок
+- Исполнение заявок с частичным выполнением
+- Исполнение с несколькими заявками
 
 
-## License
-
-The original template is distributed under the [Apache-2.0 License](https://github.com/userver-framework/userver/blob/develop/LICENSE)
-and [CLA](https://github.com/userver-framework/userver/blob/develop/CONTRIBUTING.md). Services based on the template may change
-the license and CLA.
+## Дальнейшее развитие
+- Улучшить транзакционность
+- Добавить возможность просмотра котировок
+- Добавить WebSocket для отправки уведомлений пользователю
+- Инкапсуляция данных классов
+- Вынесение логики работы с БД в отельную папку (repository)
+- Добавление новых обработчиков
+- Добавление GUI

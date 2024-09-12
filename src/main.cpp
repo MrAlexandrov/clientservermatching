@@ -24,7 +24,6 @@ int main(int argc, char* argv[]) {
                             .Append<userver::clients::dns::Component>()
                             .Append<userver::components::Postgres>("postgres-db-1");
 
-  // NMatching::AppendHello(component_list);
   NMatching::AppendRegisterUser(component_list);
   NMatching::AppendLoginUser(component_list);
   NMatching::AppendBalance(component_list);

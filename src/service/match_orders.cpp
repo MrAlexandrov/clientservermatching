@@ -8,8 +8,10 @@
 
 namespace NMatching {
 
-void Match::MatchOrders(const OrderData &new_order) {
+void Match::MatchOrders(TOrder &new_order) {
     std::string opposite_type;
+    auto zero = Number{};
+
     if (new_order.type == "buy") {
         opposite_type = "sell";
         auto matching_orders = pg_cluster_->Execute(
@@ -19,12 +21,11 @@ void Match::MatchOrders(const OrderData &new_order) {
             "(status = 'active' OR status = 'partially_filled') AND user_id != $3 "
             "ORDER BY price ASC, created_ts ASC ",
             opposite_type, Number(new_order.price), new_order.user_id
-        ).AsSetOf<OrderData>(userver::storages::postgres::kRowTag); 
+        ).AsSetOf<TOrder>(userver::storages::postgres::kRowTag); 
 
-        auto new_order_amount = Number(new_order.amount);
         
-        for (const auto& order : matching_orders) {
-            auto zero = Number{};
+        for (auto order : matching_orders) {
+            auto new_order_amount = Number(new_order.amount);
             auto order_amount = Number(order.amount);
             if (new_order_amount > zero && order_amount > zero) {
                 auto deal_amount = std::min(new_order_amount, order_amount);
@@ -45,32 +46,25 @@ void Match::MatchOrders(const OrderData &new_order) {
             "(status = 'active' OR status = 'partially_filled') AND user_id != $3 "
             "ORDER BY price DESC, created_ts ASC ",
             opposite_type, Number(new_order.price), new_order.user_id
-        ).AsSetOf<OrderData>(userver::storages::postgres::kRowTag);
+        ).AsSetOf<TOrder>(userver::storages::postgres::kRowTag);
 
-        auto new_order_amount = Number(new_order.amount);
-
-        for (const auto& order : matching_orders) {
-            auto zero = Number{};
+        for (auto order : matching_orders) {
+            auto new_order_amount = Number(new_order.amount);
             auto order_amount = Number(order.amount);
             if (new_order_amount > zero && order_amount > zero) {
                 auto deal_amount = std::min(new_order_amount, order_amount);
-                ExecuteDeal(order, new_order, deal_amount);  // Меняем порядок параметров, т.к. это ордер на продажу
+                ExecuteDeal(order, new_order, deal_amount);
 
                 UpdateOrderAmount(new_order, deal_amount);
                 UpdateOrderAmount(order, deal_amount);
 
-                UpdateBalances(order, new_order, deal_amount);  // Обновляем балансы для покупателя и продавца
+                UpdateBalances(order, new_order, deal_amount);
             }
         }
     }
 }
 
-void Match::ExecuteDeal(const OrderData& buy_order, const OrderData& sell_order, const Number& amount) {
-    // auto transaction = pg_cluster_->Begin(userver::storages::postgres::Transaction::RW);
-    //,userver::storages::postgres::TransactionOptions::kReadWrite 
-    // userver::storages::postgres::ClusterHostType::kMaster
-    // transaction.Commit();
-
+void Match::ExecuteDeal(const TOrder& buy_order, const TOrder& sell_order, const Number& amount) {
     pg_cluster_->Execute(
         userver::storages::postgres::ClusterHostType::kMaster,
         "INSERT INTO exchange.deals (buy_order_id, sell_order_id, amount, price) "
@@ -79,20 +73,20 @@ void Match::ExecuteDeal(const OrderData& buy_order, const OrderData& sell_order,
     );
 }
 
-void Match::UpdateOrderAmount(const OrderData& order, const Number& amount) {
-    OrderData changed_order{order};
-    changed_order.amount -= amount;
+void Match::UpdateOrderAmount(TOrder& order, const Number& amount) {
+    order.amount -= amount;
     
-    changed_order.status = (changed_order.amount > Number{}) ? "partially_filled" : "filled";
+    order.status = (order.amount > Number{}) ? "partially_filled" : "filled";
 
+    // auto result = 
     pg_cluster_->Execute(
         userver::storages::postgres::ClusterHostType::kMaster,
         "UPDATE exchange.orders SET amount = $1, status = $2 WHERE id = $3 ",
-        changed_order.amount, changed_order.status, changed_order.id
+        order.amount, order.status, order.id
     );
 }
 
-void Match::UpdateBalances(const OrderData& buy_order, const OrderData& sell_order, const Number& amount) {
+void Match::UpdateBalances(const TOrder& buy_order, const TOrder& sell_order, const Number& amount) {
     Number deal_value = amount * buy_order.price;
 
     pg_cluster_->Execute(

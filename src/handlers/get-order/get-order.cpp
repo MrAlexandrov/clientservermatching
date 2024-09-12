@@ -1,17 +1,15 @@
 #include "get-order.hpp"
 
-#include "userver/components/component_config.hpp"
-#include "userver/components/component_fwd.hpp"
-#include "userver/formats/json/inline.hpp"
-#include "userver/formats/json/value_builder.hpp"
-#include "userver/http/status_code.hpp"
-#include "userver/server/handlers/http_handler_base.hpp"
-#include "userver/server/http/http_request.hpp"
-#include "userver/server/request/request_context.hpp"
-#include "userver/storages/postgres/cluster_types.hpp"
-#include "userver/storages/postgres/component.hpp"
-#include "userver/storages/postgres/io/row_types.hpp"
-#include "userver/storages/postgres/postgres_fwd.hpp"
+#include <userver/components/component_config.hpp>
+#include <userver/components/component_fwd.hpp>
+#include <userver/formats/json/inline.hpp>
+#include <userver/formats/json/value_builder.hpp>
+#include <userver/http/status_code.hpp>
+#include <userver/server/handlers/http_handler_base.hpp>
+#include <userver/server/http/http_request.hpp>
+#include <userver/server/request/request_context.hpp>
+#include <userver/storages/postgres/cluster.hpp>
+#include <userver/storages/postgres/component.hpp>
 #include <userver/components/component.hpp>
 
 
@@ -79,7 +77,7 @@ public:
 
         userver::formats::json::ValueBuilder response;
         
-        response = result.AsSingleRow<OrderData>(userver::storages::postgres::kRowTag);
+        response = result.AsSingleRow<TOrder>(userver::storages::postgres::kRowTag);
 
         return userver::formats::json::ToPrettyString(response.ExtractValue());
     }

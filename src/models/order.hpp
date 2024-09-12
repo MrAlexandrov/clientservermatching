@@ -13,33 +13,18 @@ namespace NMatching {
 
 using Number = userver::decimal64::Decimal<4, userver::decimal64::HalfEvenRoundPolicy>;
 
-class IOrder {
-public:
-
-};
-
-struct OrderData {    
+struct TOrder {    
     std::string id;
     std::string user_id;
     std::string type;
     Number price;
     Number amount;
     std::string status;
-    userver::storages::postgres::TimePointWithoutTz created_ts;
+    userver::storages::postgres::TimePoint created_ts;
 };
 
 userver::formats::json::Value
-Serialize(const OrderData& data,
+Serialize(const TOrder& data,
           userver::formats::serialize::To<userver::formats::json::Value>);
-
-class TOrder final : public IOrder {
-public:
-    TOrder() = default;
-    TOrder(const OrderData&);
-    TOrder(OrderData&&);
-
-private:
-    OrderData data_;
-};
 
 } // namespace NMatching

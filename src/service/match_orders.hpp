@@ -14,12 +14,12 @@ public:
     Match& operator=(userver::storages::postgres::ClusterPtr&& other) = delete;
 
 
-    void MatchOrders(const OrderData&);
+    void MatchOrders(TOrder&);
 
 private:
-    void ExecuteDeal(const OrderData&, const OrderData&, const Number&);
-    void UpdateOrderAmount(const OrderData&, const Number&);
-    void UpdateBalances(const OrderData&, const OrderData&, const Number&);
+    void ExecuteDeal(const TOrder&, const TOrder&, const Number&);
+    void UpdateOrderAmount(TOrder&, const Number&);
+    void UpdateBalances(const TOrder&, const TOrder&, const Number&);
 
     userver::storages::postgres::ClusterPtr pg_cluster_;
 };
