@@ -41,7 +41,8 @@ jobs:
             run: |
                 (cd third_party && git clone -b develop --single-branch --depth 1 https://github.com/userver-framework/userver.git)
                 sudo apt-get update
-                sudo apt-get install --allow-downgrades -y postgresql $(cat third_party/userver/scripts/docs/en/deps/${{matrix.os}}.md | tr '\n' ' ')
+                sudo apt-get install --allow-downgrades -y postgresql-14 postgresql-client-14 postgresql-server-dev-14
+                sudo apt-get install --allow-downgrades -y $(cat third_party/userver/scripts/docs/en/deps/${{matrix.os}}.md | tr '\n' ' ')
                 python3 -m pip install -r requirements.txt
 
           - name: Setup ccache
