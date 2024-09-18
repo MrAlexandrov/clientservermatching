@@ -14,6 +14,7 @@
 #include "handlers/register/register.hpp"
 #include "handlers/login/login.hpp"
 #include "handlers/balance/balance.hpp"
+#include "handlers/get-deals/get-deals.hpp"
 
 int main(int argc, char* argv[]) {
   auto component_list = userver::components::MinimalServerComponentList()
@@ -31,6 +32,7 @@ int main(int argc, char* argv[]) {
   NMatching::AppendGetOrders(component_list);
   NMatching::AppendGetOrder(component_list);
   NMatching::AppendDeleteOrder(component_list);
+  NMatching::AppendGetDeals(component_list);
 
   return userver::utils::DaemonMain(argc, argv, component_list);
 }

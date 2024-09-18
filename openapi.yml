@@ -40,6 +40,37 @@ components:
       required:
         - usd
         - rub
+    Deal:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Deal ID
+        buy_order_id:
+          type: string
+          description: ID of the buy order
+        sell_order_id:
+          type: string
+          description: ID of the sell order
+        amount:
+          type: number
+          format: float
+          description: Amount of USD traded
+        price:
+          type: number
+          format: float
+          description: Price in RUB
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the deal
+      required:
+        - id
+        - buy_order_id
+        - sell_order_id
+        - amount
+        - price
+        - timestamp
 
 paths:
   /register:
@@ -210,3 +241,22 @@ paths:
           description: Unauthorized
         '404':
           description: Order not found
+  /deals:
+    get:
+      security:
+        - AuthToken: []
+      description: Get list of user's deals
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Deal'
+        '401':
+          description: Unauthorized

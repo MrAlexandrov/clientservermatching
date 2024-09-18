@@ -59,5 +59,5 @@ async def test_login_success(service_client, register_user):
     response = await service_client.post(LOGIN_URL, data=data, headers=headers)
     assert response.status == 200
     json_response = response.json()
-    assert "id" in json_response
-    assert json_response["id"] is not None
+    assert "token" in json_response
+    assert json_response["token"] is not None

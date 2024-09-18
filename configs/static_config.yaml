@@ -78,6 +78,10 @@ components_manager:
             path: /orders/{id}
             method: DELETE
             task_processor: main-task-processor
+        handler-get-deals:
+            path: /deals
+            method: GET
+            task_processor: main-task-processor
 
         # handler-hello:                    # Finally! Our handler.
         #     path: /v1/hello               # Registering handler by URL '/v1/hello'.

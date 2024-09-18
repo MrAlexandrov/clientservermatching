@@ -15,6 +15,7 @@ ADD_ORDER_URL = "/orders"
 GET_ORDERS_URL = "/orders"
 DELETE_ORDER_URL = "/orders/{id}"
 GET_ORDER_URL = "/orders/{id}"
+GET_DEALS_URL = "/deals"
 
 @pytest.fixture(scope='session')
 def service_source_dir():
@@ -34,7 +35,7 @@ def initial_data_path(service_source_dir):
 def pgsql_local(service_source_dir, pgsql_local_create):
     """Create schemas databases for tests"""
     databases = discover.find_schemas(
-        'matching',  # service name that goes to the DB connection
+        'matching', 
         [service_source_dir.joinpath('postgresql/schemas')],
     )
     return pgsql_local_create(list(databases.values()))
@@ -95,10 +96,10 @@ async def login_user(service_client):
         response = await service_client.post(LOGIN_URL, data=data, headers=headers)
         assert response.status == 200
         json_response = response.json()
-        assert "id" in json_response
-        assert json_response["id"] is not None
+        assert "token" in json_response
+        assert json_response["token"] is not None
 
-        return json_response["id"]
+        return json_response["token"]
     return login_
 
 
@@ -177,18 +178,15 @@ async def get_balance(service_client):
         headers = create_headers_json(token)
         response = await service_client.get(GET_BALANCE_URL, headers=headers)
         
-        # Проверяем, что запрос прошёл успешно
         assert response.status == 200
         
-        # Получаем и возвращаем JSON-ответ
         json_response = response.json()
         
-        # Проверяем наличие полей в ответе
         assert "usd" in json_response
         assert "rub" in json_response
         
         return {
-            "usd": int(json_response["usd"]),  # Преобразуем значение в int для удобства
+            "usd": int(json_response["usd"]),
             "rub": int(json_response["rub"])
         }
     return get_balance_

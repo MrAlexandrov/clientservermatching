@@ -61,7 +61,9 @@ public:
         auto request_body =
             userver::formats::json::FromString(request.RequestBody());
 
-        if (!request_body.HasMember("price") || !request_body.HasMember("amount") || !request_body.HasMember("order_type")) {
+        if (!request_body.HasMember("price") || 
+            !request_body.HasMember("amount") || 
+            !request_body.HasMember("order_type")) {
             auto& response = request.GetHttpResponse();
             response.SetStatus(userver::server::http::HttpStatus::kBadRequest);
             return userver::formats::json::ToPrettyString(

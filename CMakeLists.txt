@@ -34,6 +34,8 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/models/session.hpp
     src/models/balance.hpp
     src/models/balance.cpp
+    src/models/deal.hpp
+    src/models/deal.cpp
     
     src/handlers/lib/auth.hpp
     src/handlers/lib/auth.cpp
@@ -51,6 +53,8 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/handlers/get-orders/get-orders.cpp
     src/handlers/delete-order/delete-order.hpp
     src/handlers/delete-order/delete-order.cpp
+    src/handlers/get-deals/get-deals.hpp
+    src/handlers/get-deals/get-deals.cpp
 
     src/service/match_orders.hpp
     src/service/match_orders.cpp

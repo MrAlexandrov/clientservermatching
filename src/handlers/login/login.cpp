@@ -102,7 +102,7 @@ public:
         }
 
         userver::formats::json::ValueBuilder response;
-        response["id"] = result.AsSingleRow<std::string>();
+        response["token"] = result.AsSingleRow<std::string>();
 
         return userver::formats::json::ToPrettyString(response.ExtractValue());
     }
